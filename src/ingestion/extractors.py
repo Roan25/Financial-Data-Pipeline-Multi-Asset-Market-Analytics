@@ -59,9 +59,8 @@ class EquityPriceExtractor:
         hist_data = pd.DataFrame()
         tickers_str = " ".join(self.df_master['Yahoo_Ticker'].tolist())
         try:
-            data = yf.download(tickers_str, period="3mo", progress=False)
-            if 'Close' in data:
-                hist_data = data['Close']
+            data = yf.download(tickers_str, period="6mo", progress=False)
+            hist_data = data
             for _, row in self.df_master.iterrows():
                 sym = row['Symbol']
                 tkr = row['Yahoo_Ticker']

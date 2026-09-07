@@ -1,6 +1,7 @@
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 from src.database.db_manager import DBManager
 from src.pipeline.orchestrator import PipelineOrchestrator
@@ -57,7 +58,7 @@ def run_dashboard():
     col4.metric("India 10Y Yield", f"{ind10_val}%")
 
     # Tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["The Weighted Sector Rotator", "F&O Open Interest Mapper", "3D Volatility Surface", "Cross-Asset Correlation", "Macro Yield Curve"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["The Weighted Sector Rotator", "F&O Open Interest Mapper", "3D Volatility Surface", "Cross-Asset Correlation", "Macro Yield Curve", "Technical OHLCV"])
 
     with tab1:
         st.subheader("Market Cap Weighted Sector Performance")
@@ -162,6 +163,38 @@ def run_dashboard():
             fig6.update_traces(line=dict(color='red', width=3), marker=dict(size=10, color='blue'))
             fig6.update_layout(height=500, margin=dict(l=0, r=0, b=0, t=30), yaxis=dict(autorange=False, range=[6.0, 8.0]))
             st.plotly_chart(fig6, use_container_width=True)
+
+    with tab6:
+        st.subheader("Interactive Candlesticks & Volume Profile")
+        ohlcv_path = "data/processed/historical_ohlcv.parquet"
+        if os.path.exists(ohlcv_path):
+            df_ohlcv = pd.read_parquet(ohlcv_path)
+            if isinstance(df_ohlcv.columns, pd.MultiIndex):
+                tickers = df_ohlcv.columns.get_level_values(1).unique().tolist()
+                selected_ticker = st.selectbox("Select Equity", tickers)
+                df_ticker = df_ohlcv.xs(selected_ticker, level=1, axis=1)
+            else:
+                df_ticker = df_ohlcv
+            
+            if not df_ticker.empty and 'Close' in df_ticker:
+                df_ticker['SMA_20'] = df_ticker['Close'].rolling(window=20).mean()
+                df_ticker['SMA_50'] = df_ticker['Close'].rolling(window=50).mean()
+                
+                fig7 = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.7, 0.3])
+                
+                # Candlesticks
+                fig7.add_trace(go.Candlestick(x=df_ticker.index, open=df_ticker['Open'], high=df_ticker['High'], low=df_ticker['Low'], close=df_ticker['Close'], name='Price'), row=1, col=1)
+                fig7.add_trace(go.Scatter(x=df_ticker.index, y=df_ticker['SMA_20'], name='SMA 20', line=dict(color='orange')), row=1, col=1)
+                fig7.add_trace(go.Scatter(x=df_ticker.index, y=df_ticker['SMA_50'], name='SMA 50', line=dict(color='blue')), row=1, col=1)
+                
+                # Volume
+                colors = ['green' if row['Close'] >= row['Open'] else 'red' for _, row in df_ticker.iterrows()]
+                fig7.add_trace(go.Bar(x=df_ticker.index, y=df_ticker['Volume'], marker_color=colors, name='Volume'), row=2, col=1)
+                
+                fig7.update_layout(height=800, xaxis_rangeslider_visible=False, margin=dict(l=0, r=0, t=30, b=0))
+                st.plotly_chart(fig7, use_container_width=True)
+        else:
+            st.warning("Historical OHLCV data not available. Please run the pipeline.")
 
 if __name__ == "__main__":
     run_dashboard()

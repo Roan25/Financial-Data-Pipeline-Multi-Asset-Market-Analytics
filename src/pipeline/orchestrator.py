@@ -28,16 +28,19 @@ class PipelineOrchestrator:
         self.db.save_document("nse_options", f"doc_{time.time_ns()}", nse)
         self.db.save_document("equity_yfinance", f"doc_{time.time_ns()}", {"data": eq})
         
-        # Calculate Cross-Asset Correlation
+        # Calculate Cross-Asset Correlation & Save OHLCV
         if not hist_data.empty:
+            hist_data.to_parquet("data/processed/historical_ohlcv.parquet")
+            
             import numpy as np
             # Map tickers to sectors using eq list
+            close_data = hist_data['Close'] if 'Close' in hist_data else hist_data
             ticker_to_sector = {r['symbol'] + ".NS": r['sector'] for r in eq}
             sector_data = pd.DataFrame()
             for sector in set(ticker_to_sector.values()):
-                sector_tickers = [t for t, s in ticker_to_sector.items() if s == sector and t in hist_data.columns]
+                sector_tickers = [t for t, s in ticker_to_sector.items() if s == sector and t in close_data.columns]
                 if sector_tickers:
-                    normalized = hist_data[sector_tickers] / hist_data[sector_tickers].iloc[0] * 100
+                    normalized = close_data[sector_tickers] / close_data[sector_tickers].iloc[0] * 100
                     sector_data[sector] = normalized.mean(axis=1)
             # Add Mock India 10Y Macro Yield
             np.random.seed(42)
