@@ -19,14 +19,31 @@ class PipelineOrchestrator:
         start_time = time.time()
         logging.info("Starting Data Pipeline...")
 
-        # 1 & 2: Extract & Store Raw
+        # 1. Extraction Phase
         nse = NSEOptionChainExtractor().fetch()
-        eq = EquityPriceExtractor().fetch()
+        eq, hist_data = EquityPriceExtractor().fetch()
         macro = MacroRatesExtractor().fetch()
         
         # Use nanosecond precision to absolutely prevent Primary Key collisions
         self.db.save_document("nse_options", f"doc_{time.time_ns()}", nse)
         self.db.save_document("equity_yfinance", f"doc_{time.time_ns()}", {"data": eq})
+        
+        # Calculate Cross-Asset Correlation
+        if not hist_data.empty:
+            import numpy as np
+            # Map tickers to sectors using eq list
+            ticker_to_sector = {r['symbol'] + ".NS": r['sector'] for r in eq}
+            sector_data = pd.DataFrame()
+            for sector in set(ticker_to_sector.values()):
+                sector_tickers = [t for t, s in ticker_to_sector.items() if s == sector and t in hist_data.columns]
+                if sector_tickers:
+                    normalized = hist_data[sector_tickers] / hist_data[sector_tickers].iloc[0] * 100
+                    sector_data[sector] = normalized.mean(axis=1)
+            # Add Mock India 10Y Macro Yield
+            np.random.seed(42)
+            sector_data['India 10Y Yield'] = 7.10 + np.cumsum(np.random.normal(0, 0.05, len(sector_data)))
+            corr_matrix = sector_data.corr().to_dict()
+            self.db.save_document("correlation_matrix", "latest", corr_matrix)
 
         # Process Option Chain records for validation
         options_raw = []

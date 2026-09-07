@@ -54,11 +54,14 @@ class EquityPriceExtractor:
             # Prevent fatal pipeline crash if bootstrap.py was skipped
             self.df_master = pd.DataFrame(columns=['Symbol', 'Yahoo_Ticker', 'Sector', 'Benchmark_Weight', 'Lot_Size'])
 
-    def fetch(self) -> list:
+    def fetch(self) -> tuple:
         records = []
+        hist_data = pd.DataFrame()
         tickers_str = " ".join(self.df_master['Yahoo_Ticker'].tolist())
         try:
-            data = yf.download(tickers_str, period="2d", progress=False)
+            data = yf.download(tickers_str, period="3mo", progress=False)
+            if 'Close' in data:
+                hist_data = data['Close']
             for _, row in self.df_master.iterrows():
                 sym = row['Symbol']
                 tkr = row['Yahoo_Ticker']
@@ -81,7 +84,7 @@ class EquityPriceExtractor:
             for _, row in self.df_master.iterrows():
                 records.append(self._mock_record(row))
                 
-        return records
+        return records, hist_data
 
     def _mock_record(self, row) -> dict:
         return {

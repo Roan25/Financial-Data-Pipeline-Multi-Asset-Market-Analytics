@@ -57,7 +57,7 @@ def run_dashboard():
     col4.metric("India 10Y Yield", f"{ind10_val}%")
 
     # Tabs
-    tab1, tab2, tab3 = st.tabs(["The Weighted Sector Rotator", "F&O Open Interest Mapper", "3D Volatility Surface"])
+    tab1, tab2, tab3, tab4 = st.tabs(["The Weighted Sector Rotator", "F&O Open Interest Mapper", "3D Volatility Surface", "Cross-Asset Correlation"])
 
     with tab1:
         st.subheader("Market Cap Weighted Sector Performance")
@@ -140,6 +140,18 @@ def run_dashboard():
                 height=700
             )
             st.plotly_chart(fig4, use_container_width=True)
+
+    with tab4:
+        st.subheader("Cross-Asset Sector & Macro Correlation Matrix")
+        corr_data = db.get_latest_document("correlation_matrix")
+        if corr_data:
+            df_corr = pd.DataFrame(corr_data)
+            fig5 = px.imshow(df_corr, text_auto=".2f", aspect="auto",
+                             color_continuous_scale="RdBu_r", zmin=-1, zmax=1)
+            fig5.update_layout(height=600, margin=dict(l=0, r=0, b=0, t=30))
+            st.plotly_chart(fig5, use_container_width=True)
+        else:
+            st.warning("Correlation data not available yet. Please run the pipeline.")
 
 if __name__ == "__main__":
     run_dashboard()
