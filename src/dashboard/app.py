@@ -48,7 +48,7 @@ def run_dashboard():
     # Top Banner
     col1, col2, col3, col4 = st.columns(4)
     spot = df_fo['underlying_value'].iloc[0] if (not df_fo.empty and 'underlying_value' in df_fo.columns) else 0
-    ind10 = macro[macro['instrument'] == 'India 10Y Benchmark Yield']['yield_rate'].values
+    ind10 = macro[macro['instrument'] == 'India 10Y Yield']['yield_rate'].values
     ind10_val = ind10[0] if len(ind10) > 0 else 0
     
     col1.metric("Nifty Proxy Spot", f"{spot:,.0f}")
@@ -57,7 +57,7 @@ def run_dashboard():
     col4.metric("India 10Y Yield", f"{ind10_val}%")
 
     # Tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["The Weighted Sector Rotator", "F&O Open Interest Mapper", "3D Volatility Surface", "Cross-Asset Correlation"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["The Weighted Sector Rotator", "F&O Open Interest Mapper", "3D Volatility Surface", "Cross-Asset Correlation", "Macro Yield Curve"])
 
     with tab1:
         st.subheader("Market Cap Weighted Sector Performance")
@@ -152,6 +152,16 @@ def run_dashboard():
             st.plotly_chart(fig5, use_container_width=True)
         else:
             st.warning("Correlation data not available yet. Please run the pipeline.")
+
+    with tab5:
+        st.subheader("India Sovereign Yield Curve")
+        if not macro.empty:
+            # We assume the order is 1M, 3M, 6M, 1Y, 2Y, 5Y, 10Y, 30Y
+            fig6 = px.line(macro, x='instrument', y='yield_rate', markers=True,
+                           labels={'instrument': 'Tenor', 'yield_rate': 'Yield (%)'})
+            fig6.update_traces(line=dict(color='red', width=3), marker=dict(size=10, color='blue'))
+            fig6.update_layout(height=500, margin=dict(l=0, r=0, b=0, t=30), yaxis=dict(autorange=False, range=[6.0, 8.0]))
+            st.plotly_chart(fig6, use_container_width=True)
 
 if __name__ == "__main__":
     run_dashboard()

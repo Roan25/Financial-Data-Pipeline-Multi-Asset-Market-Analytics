@@ -95,8 +95,14 @@ class EquityPriceExtractor:
 
 class MacroRatesExtractor:
     def fetch(self) -> list:
+        # Generate a realistic yield curve (Normal to slightly flat)
         return [
-            {"instrument": "India 10Y Benchmark Yield", "yield_rate": 7.12, "daily_bps_change": 2.5, "as_of_date": datetime.utcnow().date().isoformat()},
-            {"instrument": "US 10Y Yield", "yield_rate": 4.31, "daily_bps_change": -1.2, "as_of_date": datetime.utcnow().date().isoformat()},
-            {"instrument": "RBI Policy Repo Rate", "yield_rate": 6.50, "daily_bps_change": 0.0, "as_of_date": datetime.utcnow().date().isoformat()}
+            {"instrument": "India 1M Yield", "yield_rate": 6.50, "daily_bps_change": 0.5, "as_of_date": datetime.utcnow().date().isoformat()},
+            {"instrument": "India 3M Yield", "yield_rate": 6.65, "daily_bps_change": 1.0, "as_of_date": datetime.utcnow().date().isoformat()},
+            {"instrument": "India 6M Yield", "yield_rate": 6.85, "daily_bps_change": 1.2, "as_of_date": datetime.utcnow().date().isoformat()},
+            {"instrument": "India 1Y Yield", "yield_rate": 7.00, "daily_bps_change": 1.5, "as_of_date": datetime.utcnow().date().isoformat()},
+            {"instrument": "India 2Y Yield", "yield_rate": 7.05, "daily_bps_change": 2.0, "as_of_date": datetime.utcnow().date().isoformat()},
+            {"instrument": "India 5Y Yield", "yield_rate": 7.10, "daily_bps_change": 2.2, "as_of_date": datetime.utcnow().date().isoformat()},
+            {"instrument": "India 10Y Yield", "yield_rate": 7.12, "daily_bps_change": 2.5, "as_of_date": datetime.utcnow().date().isoformat()},
+            {"instrument": "India 30Y Yield", "yield_rate": 7.25, "daily_bps_change": 1.8, "as_of_date": datetime.utcnow().date().isoformat()},
         ]
