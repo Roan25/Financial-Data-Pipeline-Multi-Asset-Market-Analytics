@@ -1,5 +1,16 @@
 # Multi-Asset Market Analytics Platform
 
+## About the Project
+This is an institutional-grade, end-to-end Financial Data ETL (Extract, Transform, Load) Pipeline and Interactive Dashboard. Built entirely in Python, it fetches live and historical market data (Equities, Options, and Macro Rates) and processes it into a localized SQLite and JSON Document hybrid database.
+
+**Key Features:**
+* **3D Volatility Surface:** Models Implied Volatility across varying Expiries and Strike Prices using Plotly 3D graphs.
+* **Cross-Asset Correlation:** Computes and visualizes real-time correlation matrices between equity sectors and macro yield curves.
+* **F&O Microstructure:** Maps Nifty 50 Open Interest (OI) build-up and unwinding phases to detect market sentiment.
+* **Data Quality Gates:** Implements strict Pydantic V2 schema validations and automated circuit breakers to reject anomalous data spikes.
+* **Technical Charting:** Interactive OHLCV Candlesticks overlaid with Moving Averages (SMA) and volume profiles.
+
+
 ## Initialization Steps
 1. Create a python virtual environment and install packages:
    ```bash
