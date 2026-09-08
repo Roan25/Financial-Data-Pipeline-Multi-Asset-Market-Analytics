@@ -6,6 +6,9 @@ from datetime import datetime
 class DBManager:
     def __init__(self, db_path="data/market_analytics.db"):
         self.db_path = db_path
+        import os
+        # Ensure directory exists on ephemeral Streamlit Cloud instances
+        os.makedirs(os.path.dirname(self.db_path) or '.', exist_ok=True)
         self._init_db()
 
     def _init_db(self):

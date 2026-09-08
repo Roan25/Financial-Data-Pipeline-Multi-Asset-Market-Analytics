@@ -7,6 +7,8 @@ class ExcelReportGenerator:
     def __init__(self, db_manager):
         self.db = db_manager
         self.filepath = "data/processed/Nifty_Executive_Report.xlsx"
+        import os
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
 
     def generate(self, rejected_logs):
         wb = openpyxl.Workbook()

@@ -19,6 +19,10 @@ class PipelineOrchestrator:
         start_time = time.time()
         logging.info("Starting Data Pipeline...")
 
+        # Ensure processed directory exists on Streamlit Cloud
+        import os
+        os.makedirs("data/processed", exist_ok=True)
+
         # 1. Extraction Phase
         nse = NSEOptionChainExtractor().fetch()
         eq, hist_data = EquityPriceExtractor().fetch()
