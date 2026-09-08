@@ -25,7 +25,7 @@ class DBManager:
                           ltp REAL, price_change REAL, open_interest INTEGER, change_in_oi INTEGER, 
                           traded_volume INTEGER, market_phase TEXT, expiry_date TEXT, implied_volatility REAL, underlying_value REAL, updated_at TIMESTAMP)''')
             c.execute('''CREATE TABLE IF NOT EXISTS macro_rates 
-                         (instrument TEXT PRIMARY KEY, yield_rate REAL, daily_bps_change REAL, as_of_date TEXT)''')
+                         (instrument TEXT PRIMARY KEY, yield_rate REAL, daily_bps_change REAL, as_of_date TEXT, updated_at TIMESTAMP)''')
             conn.commit()
 
     def save_document(self, collection: str, doc_id: str, payload: dict):
