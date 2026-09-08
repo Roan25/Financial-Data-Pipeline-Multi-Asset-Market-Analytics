@@ -1,3 +1,8 @@
+import sys
+import os
+# Fix for Streamlit Cloud: Add project root to PYTHONPATH
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
@@ -5,7 +10,6 @@ from plotly.subplots import make_subplots
 import pandas as pd
 from src.database.db_manager import DBManager
 from src.pipeline.orchestrator import PipelineOrchestrator
-import os
 
 st.set_page_config(page_title="Multi-Asset Analytics", layout="wide")
 db = DBManager("data/market_analytics.db")
